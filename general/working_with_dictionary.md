@@ -31,7 +31,7 @@ if(dict.ContainsKey(key))
 string value = dict.ContainsKey(key) ? dict[key] : string.Empty; // give "value" a default value
 
 // C# provides a TryGetKey method
-dict.TryGetkey(key, out string value)
+dict.TryGetValue(key, out string value)
 ```
 
 The method to deal with missing key varies from language to language, with Javascript when accessing a non existing property, it will return undefined
