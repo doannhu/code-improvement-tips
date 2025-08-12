@@ -1,11 +1,11 @@
 6. Use Context for Cancellations and Timeouts
 Senior engineers design for reliability. If your API calls or DB queries don’t use context.Context, you’re asking for trouble.
 
-    ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+    ```ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
     defer cancel()
     if err := service.Process(ctx, orderID); err != nil {
         log.Fatal(err)
-    }
+    }```
 
 This makes your services predictable under load and prevents resource leaks.
 
@@ -22,7 +22,7 @@ Leak prevention: goroutines exit when ctx.Done() closes.
 Practical examples
 1) HTTP handler → service → repository
     
-    type Handler struct {
+    ```type Handler struct {
             svc *Service
         }
 
@@ -50,7 +50,7 @@ Practical examples
         // database/sql honors ctx for cancellation/timeouts
         _, err := r.db.ExecContext(ctx, `INSERT INTO orders(id, total) VALUES($1,$2)`, o.ID, o.Total)
         return err
-    }
+    }```
 
 Why it’s good: When the client disconnects or the 3s timeout hits, r.Context() is canceled → DB call bails out quickly.
 
@@ -75,7 +75,7 @@ That service layer (*Service) has its own dependency: s.repo, the repository.
 
 # Handler layer
 
-    func (h *Handler) CreateOrder(w http.ResponseWriter, r *http.Request) {
+    ```func (h *Handler) CreateOrder(w http.ResponseWriter, r *http.Request) {
         ctx, cancel := context.WithTimeout(r.Context(), 3*time.Second)
         defer cancel()
 
@@ -84,7 +84,7 @@ That service layer (*Service) has its own dependency: s.repo, the repository.
             return
         }
         w.WriteHeader(http.StatusCreated)
-    }
+    }```
 
 Purpose: Handle an HTTP request to create a new order.
 
@@ -110,10 +110,10 @@ Purpose: Handle an HTTP request to create a new order.
 
 # Service layer
 
-    func (s *Service) CreateOrder(ctx context.Context, o Order) error {
+    ```func (s *Service) CreateOrder(ctx context.Context, o Order) error {
         // do stuff, then persist
         return s.repo.Save(ctx, o)
-    }
+    }```
 
 Purpose: Business logic for creating an order.
 
@@ -129,10 +129,10 @@ Purpose: Business logic for creating an order.
 
 # Repository (Repo) layer
 
-    func (r *Repo) Save(ctx context.Context, o Order) error {
+    ```func (r *Repo) Save(ctx context.Context, o Order) error {
         _, err := r.db.ExecContext(ctx, `INSERT INTO orders(id, total) VALUES($1,$2)`, o.ID, o.Total)
         return err
-    }
+    }```
 Purpose: Interact with the database.
 
     Uses ExecContext instead of Exec so it respects context cancellation and timeouts.
@@ -157,5 +157,5 @@ In Go web apps:
 Example:
 
 
-    handler := &Handler{svc: &Service{repo: &Repo{db: dbConn}}}
-    http.HandleFunc("/orders", handler.CreateOrder)
+    ```handler := &Handler{svc: &Service{repo: &Repo{db: dbConn}}}
+    http.HandleFunc("/orders", handler.CreateOrder)```
