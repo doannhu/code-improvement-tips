@@ -188,9 +188,3 @@ But for anything involving:
 * High performance
 * ML/AI
 
-```
-
----
-
-Do you want me to also add **table of contents with section links** so it’s easy to navigate in a README or documentation site? That would make this Markdown very user-friendly for a GitHub repo.
-```
